@@ -12,6 +12,7 @@ VERIFY_TOKEN = os.getenv("VERIFY_TOKEN", "clinico123")
 
 @router.get("/webhook")
 def verificar_webhook(hub_mode: str = "", hub_verify_token: str = "", hub_challenge: str = ""):
+    print("RECIBIDO:", hub_verify_token, "| ESPERADO:", VERIFY_TOKEN)
     if hub_mode == "subscribe" and hub_verify_token == VERIFY_TOKEN:
         return int(hub_challenge)
     return {"status": "forbidden"}
