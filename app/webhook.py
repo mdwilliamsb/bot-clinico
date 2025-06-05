@@ -9,7 +9,7 @@ router = APIRouter()
 
 WHATSAPP_TOKEN = os.getenv("WHATSAPP_TOKEN")
 PHONE_NUMBER_ID = os.getenv("PHONE_NUMBER_ID")
-VERIFY_TOKEN = os.getenv("VERIFY_TOKEN", "clinico123")
+VERIFY_TOKEN = os.getenv("VERIFY_TOKEN","clinico123")
 
 @router.get("/webhook")
 def verificar_webhook(hub_mode: str = "", hub_verify_token: str = "", hub_challenge: str = ""):
