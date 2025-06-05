@@ -1,4 +1,5 @@
 from fastapi import Request, APIRouter
+from fastapi.responses import PlainTextResponse
 import os
 import requests
 from app.core.evaluacion import evaluar_paciente
@@ -12,10 +13,9 @@ VERIFY_TOKEN = os.getenv("VERIFY_TOKEN", "clinico123")
 
 @router.get("/webhook")
 def verificar_webhook(hub_mode: str = "", hub_verify_token: str = "", hub_challenge: str = ""):
-    print("RECIBIDO:", hub_verify_token, "| ESPERADO:", VERIFY_TOKEN)
     if hub_mode == "subscribe" and hub_verify_token == VERIFY_TOKEN:
-        return int(hub_challenge)
-    return {"status": "forbidden"}
+        return PlainTextResponse(content=hub_challenge, status_code=200)
+    return PlainTextResponse(content="Forbidden", status_code=403)
 
 @router.post("/webhook")
 async def whatsapp_webhook(request: Request):
