@@ -1,50 +1,32 @@
-from fastapi import Request, APIRouter
+from fastapi import APIRouter, Request
 from fastapi.responses import PlainTextResponse
 import os
-import requests
-from app.core.evaluacion import evaluar_paciente
-from app.core.motor import responder_gpt
+import logging
 
 router = APIRouter()
 
-WHATSAPP_TOKEN = os.getenv("WHATSAPP_TOKEN")
-PHONE_NUMBER_ID = os.getenv("PHONE_NUMBER_ID")
-VERIFY_TOKEN = os.getenv("VERIFY_TOKEN","clinico123")
+# Token de verificación (debe coincidir exactamente con el que configures en Meta)
+VERIFY_TOKEN = os.getenv("VERIFY_TOKEN", "clinico123")  # Puedes cambiar "clinico123" por el que estés usando
 
+# Endpoint GET para validación del webhook de Meta (muy importante)
 @router.get("/webhook")
-def verificar_webhook(hub_mode: str = "", hub_verify_token: str = "", hub_challenge: str = ""):
-    if hub_mode == "subscribe" and hub_verify_token == VERIFY_TOKEN:
-        return PlainTextResponse(content=hub_challenge, status_code=200)
-    return PlainTextResponse(content="Forbidden", status_code=403)
+async def verify_webhook(request: Request):
+    mode = request.query_params.get("hub.mode")
+    token = request.query_params.get("hub.verify_token")
+    challenge = request.query_params.get("hub.challenge")
 
+    if mode == "subscribe" and token == VERIFY_TOKEN:
+        return PlainTextResponse(content=challenge, status_code=200)
+    return PlainTextResponse("Forbidden", status_code=403)
+
+# (Opcional) Endpoint POST para recibir mensajes de WhatsApp
 @router.post("/webhook")
-async def whatsapp_webhook(request: Request):
-    data = await request.json()
+async def recibir_mensaje(request: Request):
     try:
-        mensaje_usuario = data["entry"][0]["changes"][0]["value"]["messages"][0]["text"]["body"]
-        numero = data["entry"][0]["changes"][0]["value"]["messages"][0]["from"]
-
-        evaluacion = evaluar_paciente(mensaje_usuario)
-        respuesta = responder_gpt(evaluacion)
-
-        enviar_mensaje_whatsapp(numero, respuesta)
-
-        return {"status": "ok"}
+        data = await request.json()
+        logging.info(f"Mensaje recibido: {data}")
+        # Aquí puedes procesar el mensaje si lo deseas, por ejemplo, responder con GPT
+        return PlainTextResponse("EVENT_RECEIVED", status_code=200)
     except Exception as e:
-        print("Error procesando el webhook:", e)
-        return {"status": "error", "detail": str(e)}
-
-def enviar_mensaje_whatsapp(numero_destino, mensaje):
-    url = f"https://graph.facebook.com/v19.0/{PHONE_NUMBER_ID}/messages"
-    headers = {
-        "Authorization": f"Bearer {WHATSAPP_TOKEN}",
-        "Content-Type": "application/json"
-    }
-    payload = {
-        "messaging_product": "whatsapp",
-        "to": numero_destino,
-        "type": "text",
-        "text": {"body": mensaje}
-    }
-    r = requests.post(url, json=payload, headers=headers)
-    print("Enviado a WhatsApp:", r.status_code, r.text)
+        logging.error(f"Error procesando el mensaje: {e}")
+        return PlainTextResponse("Error interno", status_code=500)
