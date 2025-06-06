@@ -5,9 +5,7 @@ import logging
 import requests
 from openai import OpenAI
 
-router = APIRouter()
-
-# ✅ Activar visibilidad de logs INFO en Railway
+# ✅ Activar logs en consola
 logging.basicConfig(level=logging.INFO)
 
 router = APIRouter()
@@ -38,81 +36,55 @@ async def recibir_mensaje(request: Request):
     try:
         data = await request.json()
 
-        # Log completo del webhook recibido
+        # Logs forzados para depuración
+        print("📥 JSON recibido:")
+        print(data)
         logging.info("📥 Webhook recibido:")
         logging.info(data)
 
-        # Extrae estructura de entrada
         entry = data.get("entry", [])
         if not entry:
-            logging.warning("⚠️ No se encontró 'entry' en el JSON.")
+            print("⚠️ Falta 'entry'")
             return PlainTextResponse("EVENT_RECEIVED", status_code=200)
 
         changes = entry[0].get("changes", [])
         if not changes:
-            logging.warning("⚠️ No se encontró 'changes' en el JSON.")
+            print("⚠️ Falta 'changes'")
             return PlainTextResponse("EVENT_RECEIVED", status_code=200)
 
         value = changes[0].get("value", {})
-        logging.info("🔎 VALUE recibido:")
-        logging.info(value)
+        print("🔎 VALUE recibido:")
+        print(value)
 
         messages = value.get("messages", [])
         if not messages:
-            logging.warning("⚠️ No se encontró 'messages' en el webhook.")
+            print("⚠️ No se encontró 'messages'")
             return PlainTextResponse("EVENT_RECEIVED", status_code=200)
 
         mensaje = messages[0]
         texto_usuario = mensaje.get("text", {}).get("body", "")
         numero = mensaje.get("from")
 
-        logging.info(f"✉️ Mensaje recibido de {numero}: {texto_usuario}")
+        print(f"✉️ Mensaje recibido de {numero}: {texto_usuario}")
 
         if texto_usuario and numero:
-            respuesta = generar_respuesta_clinica_pro(texto_usuario)
+            # 🔁 Respuesta de prueba (no GPT)
+            respuesta = f"Recibido: '{texto_usuario}' - gracias por escribir."
             enviar_respuesta(numero, respuesta)
-            logging.info(f"✅ Respuesta enviada a {numero}")
+            print(f"✅ Respuesta enviada a {numero}")
         else:
-            logging.warning("⚠️ El mensaje no contenía texto o número válido.")
+            print("⚠️ Texto o número vacío")
 
         return PlainTextResponse("EVENT_RECEIVED", status_code=200)
 
     except Exception as e:
-        logging.error(f"❌ Error procesando el webhook: {e}")
+        print(f"❌ Error procesando el webhook: {e}")
         return PlainTextResponse("Error interno", status_code=500)
-
-# --- GPT: Generar respuesta médica profesional ---
-def generar_respuesta_clinica_pro(mensaje_usuario: str) -> str:
-    try:
-        prompt = (
-            "Eres un asistente médico clínico con conocimientos avanzados en medicina general, pediatría, nutrición, estética, salud mental, urgencias, etc. "
-            "Responde de forma clara, profesional y empática al siguiente mensaje recibido por WhatsApp:\n\n"
-            f"\"{mensaje_usuario}\"\n\n"
-            "Da orientación útil y sugiere valoración presencial si es necesario."
-        )
-
-        respuesta = gpt.chat.completions.create(
-            model="gpt-4",
-            messages=[
-                {
-                    "role": "system",
-                    "content": "Eres un médico experto que responde con empatía y precisión por WhatsApp, sin diagnosticar directamente, pero orientando de forma confiable."
-                },
-                {"role": "user", "content": prompt}
-            ],
-            temperature=0.7
-        )
-
-        return respuesta.choices[0].message.content.strip()
-
-    except Exception as e:
-        logging.error(f"❌ Error al generar respuesta con GPT: {e}")
-        return "Lo siento, hubo un error al procesar tu mensaje. Intenta más tarde."
 
 # --- Enviar respuesta a WhatsApp ---
 def enviar_respuesta(numero: str, mensaje: str):
     if not WHATSAPP_TOKEN or not WHATSAPP_PHONE_NUMBER_ID:
-        logging.error("❌ WHATSAPP_TOKEN o WHATSAPP_PHONE_NUMBER_ID no están definidos.")
+        print("❌ WHATSAPP_TOKEN o WHATSAPP_PHONE_NUMBER_ID no están definidos.")
         return
 
     url = f"https://graph.facebook.com/v18.0/{WHATSAPP_PHONE_NUMBER_ID}/messages"
@@ -128,4 +100,4 @@ def enviar_respuesta(numero: str, mensaje: str):
     }
 
     response = requests.post(url, headers=headers, json=payload)
-    logging.info(f"📤 Respuesta enviada a {numero}: {response.status_code} - {response.text}")
+    print(f"📤 Respuesta enviada a {numero}: {response.status_code} - {response.text}")
