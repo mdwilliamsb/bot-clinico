@@ -7,6 +7,11 @@ from openai import OpenAI
 
 router = APIRouter()
 
+# ✅ Activar visibilidad de logs INFO en Railway
+logging.basicConfig(level=logging.INFO)
+
+router = APIRouter()
+
 # --- Variables de entorno ---
 VERIFY_TOKEN = os.getenv("VERIFY_TOKEN", "clinico123")
 WHATSAPP_TOKEN = os.getenv("WHATSAPP_TOKEN")
