@@ -33,33 +33,47 @@ async def recibir_mensaje(request: Request):
     try:
         data = await request.json()
 
-        # 📥 Log completo del webhook recibido
+        # Log completo del webhook recibido
         logging.info("📥 Webhook recibido:")
         logging.info(data)
 
-        entry = data.get("entry", [])[0]
-        changes = entry.get("changes", [])[0]
-        value = changes.get("value", {})
+        # Extrae estructura de entrada
+        entry = data.get("entry", [])
+        if not entry:
+            logging.warning("⚠️ No se encontró 'entry' en el JSON.")
+            return PlainTextResponse("EVENT_RECEIVED", status_code=200)
+
+        changes = entry[0].get("changes", [])
+        if not changes:
+            logging.warning("⚠️ No se encontró 'changes' en el JSON.")
+            return PlainTextResponse("EVENT_RECEIVED", status_code=200)
+
+        value = changes[0].get("value", {})
+        logging.info("🔎 VALUE recibido:")
+        logging.info(value)
+
         messages = value.get("messages", [])
-
-        if messages:
-            mensaje = messages[0]
-            texto_usuario = mensaje.get("text", {}).get("body", "")
-            numero = mensaje.get("from")
-
-            logging.info(f"✉️ Mensaje recibido de {numero}: {texto_usuario}")
-
-            if texto_usuario and numero:
-                respuesta = generar_respuesta_clinica_pro(texto_usuario)
-                enviar_respuesta(numero, respuesta)
-                logging.info(f"✅ Respuesta enviada a {numero}")
-        else:
+        if not messages:
             logging.warning("⚠️ No se encontró 'messages' en el webhook.")
+            return PlainTextResponse("EVENT_RECEIVED", status_code=200)
+
+        mensaje = messages[0]
+        texto_usuario = mensaje.get("text", {}).get("body", "")
+        numero = mensaje.get("from")
+
+        logging.info(f"✉️ Mensaje recibido de {numero}: {texto_usuario}")
+
+        if texto_usuario and numero:
+            respuesta = generar_respuesta_clinica_pro(texto_usuario)
+            enviar_respuesta(numero, respuesta)
+            logging.info(f"✅ Respuesta enviada a {numero}")
+        else:
+            logging.warning("⚠️ El mensaje no contenía texto o número válido.")
 
         return PlainTextResponse("EVENT_RECEIVED", status_code=200)
 
     except Exception as e:
-        logging.error(f"❌ Error procesando el mensaje: {e}")
+        logging.error(f"❌ Error procesando el webhook: {e}")
         return PlainTextResponse("Error interno", status_code=500)
 
 # --- GPT: Generar respuesta médica profesional ---
