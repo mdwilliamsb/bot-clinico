@@ -1,0 +1,84 @@
+
+Guía completa de la dieta cetogénica – Contexto médico para uso en respuestas clínicas:
+
+🧠 DEFINICIÓN:
+La dieta cetogénica es un enfoque nutricional bajo en carbohidratos y alto en grasas que induce un estado metabólico llamado cetosis, en el cual el cuerpo utiliza cuerpos cetónicos derivados de las grasas como principal fuente de energía en lugar de glucosa.
+
+🍽️ MACRONUTRIENTES TÍPICOS:
+- Grasas: 65–80% del total calórico
+- Proteínas: 15–25%
+- Carbohidratos: 5–10% (usualmente menos de 30g netos diarios)
+
+⚙️ MECANISMO DE ACCIÓN:
+- La restricción de carbohidratos agota las reservas hepáticas de glucógeno.
+- El hígado convierte los ácidos grasos en cuerpos cetónicos (beta-hidroxibutirato, acetoacetato, acetona).
+- Estos cuerpos cetónicos alimentan el cerebro y otros tejidos durante cetosis.
+
+✅ BENEFICIOS CLÍNICAMENTE EVIDENCIADOS:
+1. Pérdida de peso efectiva (a corto y mediano plazo)
+2. Mejora de la sensibilidad a la insulina
+3. Disminución de triglicéridos y aumento de HDL
+4. Control del apetito
+5. Reducción de inflamación sistémica
+6. Mejora cognitiva y enfoque mental
+7. Control de epilepsia refractaria (uso clínico original)
+
+🔬 USOS MÉDICOS (validados o en estudio):
+- Epilepsia infantil refractaria
+- Obesidad grado I a III
+- Síndrome metabólico
+- Diabetes tipo 2
+- SOP (síndrome de ovario poliquístico)
+- Alzheimer, Parkinson (fase experimental)
+- Cáncer (terapia complementaria en ciertos tumores)
+- Migraña, autismo, depresión (casos seleccionados)
+
+⚠️ CONTRAINDICACIONES RELATIVAS O ABSOLUTAS:
+- Embarazo o lactancia sin supervisión médica
+- Insuficiencia hepática o pancreática
+- Trastornos del ciclo de la urea
+- Cetoacidosis diabética
+- Trastornos psiquiátricos sin control
+- Pacientes con alto riesgo cardiovascular no controlado
+
+🍳 ALIMENTOS PERMITIDOS:
+- Proteínas animales: carne, pollo, pescado, huevos
+- Grasas saludables: aguacate, aceitunas, nueces, semillas, aceite de oliva
+- Lácteos enteros: crema, queso, mantequilla
+- Vegetales bajos en CHO: brócoli, espinaca, calabaza, pepino, lechuga
+- Otros: café, té, eritritol, stevia
+
+🚫 ALIMENTOS PROHIBIDOS:
+- Azúcares: sacarosa, miel, jarabe de maíz
+- Pan, arroz, tortillas, avena, cereales
+- Frutas ricas en fructosa: plátano, uvas, mango, piña
+- Leguminosas: frijoles, lentejas, garbanzos
+- Jugos, refrescos, bebidas deportivas
+
+🧬 EFECTOS SECUNDARIOS POSIBLES ("Keto flu"):
+- Dolor de cabeza, fatiga, estreñimiento, irritabilidad, calambres
+- Se resuelven usualmente en 2–7 días
+- Hidratación y electrolitos (sodio, potasio, magnesio) ayudan a prevenirlos
+
+📅 VARIANTES DE LA DIETA CETOGÉNICA:
+1. Estándar (SKD): usada en pérdida de peso y salud metabólica
+2. Cetogénica cíclica (CKD): alterna días altos en carbohidratos (usada en atletas)
+3. Alta en proteínas: 60% grasas, 35% proteínas, 5% carbohidratos
+4. Terapéutica (clásica): ratios 4:1 en epilepsia y neurología
+
+🎯 OBJETIVO CLÍNICO:
+- Inducir cetosis nutricional estable (niveles de beta-hidroxibutirato >0.5 mmol/L)
+- Reducir insulina basal y glucosa postprandial
+- Promover oxidación de grasa corporal
+- Regular saciedad vía leptina y grelina
+
+🧠 OBSERVACIONES MÉDICAS:
+- La dieta debe personalizarse y adaptarse a la historia clínica del paciente.
+- Requiere seguimiento regular (laboratorios, síntomas, progresos).
+- No es una dieta milagro, sino una herramienta metabólica que debe aplicarse con juicio clínico.
+
+📚 FUENTES:
+- Virta Health (clinicaltrials.gov)
+- DGA 2020–2025 Ketogenic dietary reviews
+- PubMed: PMID 33121528, PMID 33487090
+- Manual de Dietas Clínicas, ADA
