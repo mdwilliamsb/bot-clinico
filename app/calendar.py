@@ -62,12 +62,10 @@ def crear_evento_calendar(nombre: str, telefono: str, nota: str) -> str:
 
         # Confirmar cita por WhatsApp
         mensaje = (
-            f"✅ Tu cita ha sido agendada para el {fecha_hora.strftime('%A %d de %B a las %H:%M')}.
-"
-            "📍 Ubicación: Aesthetic Center, Metepec.
-"
-            "Gracias por tu confianza.
-— Dr. Williams Barrios"
+            f"✅ Tu cita ha sido agendada para el {fecha_hora.strftime('%A %d de %B a las %H:%M')}.\n"
+    "📍 Ubicación: Aesthetic Center, Metepec.\n"
+    "Gracias por tu confianza.\n"
+    "— Dr. Williams Barrios"
         )
         enviar_respuesta(telefono, mensaje)
         return "Evento creado y confirmado"
