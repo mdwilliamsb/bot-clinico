@@ -15,8 +15,10 @@ os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
 # Asegurarse de que la carpeta exista
 os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
 
-# Inicializar la base de datos
-def init_db():
+
+
+ 
+def inicializar_db():
     with sqlite3.connect(DB_PATH) as conn:
         cursor = conn.cursor()
         cursor.execute("""
@@ -28,6 +30,7 @@ def init_db():
             )
         """)
         conn.commit()
+        
 
 # Guardar mensaje recibido
 def guardar_mensaje(numero: str, texto: str, nombre: str = None):
