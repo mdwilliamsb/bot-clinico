@@ -1,41 +1,77 @@
+
 import os
 import json
-import pytz
+import logging
 from datetime import datetime, timedelta
+
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 
-# Cargar credenciales desde variable de entorno segura
-json_str = os.getenv("GOOGLE_CREDENTIALS_JSON")
-info = json.loads(json_str)
-credentials = service_account.Credentials.from_service_account_info(
-    info,
-    scopes=["https://www.googleapis.com/auth/calendar"]
-)
+from app.utils import interpretar_fecha_hora
+from app.webhook import enviar_respuesta
 
-# Conectarse a la API de Google Calendar
-service = build("calendar", "v3", credentials=credentials)
-CALENDAR_ID = os.getenv("GOOGLE_CALENDAR_ID")  # Puedes fijarlo como variable también
+# Variables de entorno
+GOOGLE_CREDENTIALS_JSON = os.getenv("GOOGLE_CREDENTIALS_JSON")
+CALENDAR_ID = os.getenv("GOOGLE_CALENDAR_ID")
 
-# --- Crear evento en Google Calendar ---
-def agendar_evento(nombre: str, fecha: str, motivo: str = "Consulta médica"):
-    """
-    Agenda un evento en el calendario.
-    - nombre: nombre del paciente
-    - fecha: formato 'YYYY-MM-DD HH:MM' (hora 24h)
-    - motivo: motivo de consulta
-    """
+def obtener_servicio_calendar():
+    try:
+        creds_dict = json.loads(GOOGLE_CREDENTIALS_JSON)
+        creds = service_account.Credentials.from_service_account_info(
+            creds_dict,
+            scopes=["https://www.googleapis.com/auth/calendar"]
+        )
+        return build("calendar", "v3", credentials=creds)
+    except Exception as e:
+        logging.error(f"❌ Error al conectar con Google Calendar: {e}")
+        return None
 
-    zona_horaria = pytz.timezone("America/Mexico_City")
-    inicio = zona_horaria.localize(datetime.strptime(fecha, "%Y-%m-%d %H:%M"))
-    fin = inicio + timedelta(minutes=30)
+def crear_evento_calendar(nombre: str, telefono: str, nota: str) -> str:
+    try:
+        service = obtener_servicio_calendar()
+        if not service:
+            return "No se pudo conectar a Google Calendar."
 
-    evento = {
-        "summary": f"Cita con {nombre}",
-        "description": motivo,
-        "start": {"dateTime": inicio.isoformat(), "timeZone": "America/Mexico_City"},
-        "end": {"dateTime": fin.isoformat(), "timeZone": "America/Mexico_City"},
-    }
+        fecha_hora = interpretar_fecha_hora(nota)
+        inicio = fecha_hora.isoformat()
+        fin = (fecha_hora + timedelta(minutes=30)).isoformat()
 
-    creado = service.events().insert(calendarId=CALENDAR_ID, body=evento).execute()
-    return creado.get("htmlLink", "Cita creada.")
+        # Verificar duplicados
+        eventos = service.events().list(
+            calendarId=CALENDAR_ID,
+            timeMin=fecha_hora.isoformat(),
+            timeMax=(fecha_hora + timedelta(minutes=30)).isoformat(),
+            singleEvents=True,
+            orderBy="startTime"
+        ).execute().get("items", [])
+
+        for e in eventos:
+            if nombre.lower() in e.get("summary", "").lower():
+                logging.info("Evento duplicado detectado. No se agenda.")
+                enviar_respuesta(telefono, f"Ya tienes una cita registrada para ese horario.")
+                return "Evento ya existe"
+
+        evento = {
+            "summary": f"Cita con {nombre}",
+            "description": nota,
+            "start": {"dateTime": inicio, "timeZone": "America/Mexico_City"},
+            "end": {"dateTime": fin, "timeZone": "America/Mexico_City"},
+        }
+
+        creado = service.events().insert(calendarId=CALENDAR_ID, body=evento).execute()
+
+        # Confirmar cita por WhatsApp
+        mensaje = (
+            f"✅ Tu cita ha sido agendada para el {fecha_hora.strftime('%A %d de %B a las %H:%M')}.
+"
+            "📍 Ubicación: Aesthetic Center, Metepec.
+"
+            "Gracias por tu confianza.
+— Dr. Williams Barrios"
+        )
+        enviar_respuesta(telefono, mensaje)
+        return "Evento creado y confirmado"
+    except Exception as e:
+        logging.error(f"❌ Error creando evento: {e}")
+        enviar_respuesta(telefono, "Hubo un problema al agendar tu cita. Intenta más tarde.")
+        return "Error"
