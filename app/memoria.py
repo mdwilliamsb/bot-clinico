@@ -1,23 +1,12 @@
-
 import sqlite3
 import os
 from datetime import datetime
 
 # Ruta segura a la base de datos
-# DB_PATH = "data/memoria.db"
-
 DB_PATH = os.path.join(os.path.dirname(__file__), "data", "memoria.db")
 os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
 
-#BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-#DB_PATH = os.path.join(BASE_DIR, "data/memoria.db")
-
-# Asegurarse de que la carpeta exista
-os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
-
-
-
- 
+# Inicializar la base de datos
 def inicializar_db():
     with sqlite3.connect(DB_PATH) as conn:
         cursor = conn.cursor()
@@ -30,7 +19,6 @@ def inicializar_db():
             )
         """)
         conn.commit()
-        
 
 # Guardar mensaje recibido
 def guardar_mensaje(numero: str, texto: str, nombre: str = None):
@@ -84,5 +72,5 @@ def detectar_intencion(texto: str) -> str:
         return "saludo"
     return "consulta"
 
-# Inicializar al importar
-init_db()
+# Ejecutar al importar
+inicializar_db()
