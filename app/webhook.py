@@ -8,6 +8,7 @@ import base64
 from openai import OpenAI
 
 from app.memoria import (
+    inicializar_db,
     guardar_mensaje,
     recuperar_historial,
     recuperar_nombre,
@@ -17,6 +18,10 @@ from app.memoria import (
 from app.calendar import crear_evento_calendar
 from app.listar_eventos import listar_eventos_hoy
 from app.utils import interpretar_fecha_hora
+
+# 🧠 Verificación automática de base de datos
+if not os.path.exists("data/memoria.db"):
+    inicializar_db()
 
 logging.basicConfig(level=logging.INFO)
 router = APIRouter()
@@ -69,8 +74,7 @@ async def recibir_mensaje(request: Request):
 
             if texto.lower() == "/recordar":
                 historial = recuperar_historial(numero)
-                respuesta = f"Este es tu historial reciente:
-{historial or 'No tengo registro previo contigo.'}"
+                respuesta = f"Este es tu historial reciente:\n{historial or 'No tengo registro previo contigo.'}"
                 enviar_respuesta(numero, respuesta)
                 return PlainTextResponse("EVENT_RECEIVED", status_code=200)
 
