@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from webhook import router as webhook_router  # ✅ Línea corregida
+from app.webhook import router as webhook_router  # ✅ Línea corregida
 
 app = FastAPI(title="Bot Clínico API", version="1.0.0")
 
