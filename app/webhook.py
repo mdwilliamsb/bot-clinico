@@ -14,6 +14,9 @@ from app.memoria import (
     actualizar_nombre,
     detectar_intencion
 )
+from app.calendar import crear_evento_calendar
+from app.listar_eventos import listar_eventos_hoy
+from app.utils import interpretar_fecha_hora
 
 logging.basicConfig(level=logging.INFO)
 router = APIRouter()
@@ -59,9 +62,25 @@ async def recibir_mensaje(request: Request):
             if es_mensaje_irrelevante(texto):
                 return PlainTextResponse("EVENT_RECEIVED", status_code=200)
 
+            if texto.lower() in ["/citas", "/resumen"]:
+                resumen = listar_eventos_hoy()
+                enviar_respuesta(numero, resumen)
+                return PlainTextResponse("EVENT_RECEIVED", status_code=200)
+
+            if texto.lower() == "/recordar":
+                historial = recuperar_historial(numero)
+                respuesta = f"Este es tu historial reciente:
+{historial or 'No tengo registro previo contigo.'}"
+                enviar_respuesta(numero, respuesta)
+                return PlainTextResponse("EVENT_RECEIVED", status_code=200)
+
             guardar_mensaje(numero, texto)
             actualizar_nombre(numero, texto)
             respuesta = generar_respuesta_personalizada(numero, texto)
+
+            # Intención: agendar
+            if detectar_intencion(texto).lower() in ["agendar", "cita", "consulta"]:
+                crear_evento_calendar(recuperar_nombre(numero), numero, texto)
 
         elif tipo == "image":
             media_id = mensaje["image"]["id"]
@@ -83,8 +102,7 @@ def generar_respuesta_personalizada(numero: str, texto_usuario: str) -> str:
     historial = recuperar_historial(numero)
     intencion = detectar_intencion(texto_usuario)
 
-    prompt = f"""
-Soy el Dr. Williams Barrios, médico pediatra con enfoque en nutrición, dieta cetogénica y salud integral.
+    prompt = f"""Soy el Dr. Williams Barrios, médico pediatra con enfoque en nutrición, dieta cetogénica y salud integral.
 Respondo personalmente los mensajes por WhatsApp con respeto y orientación profesional.
 
 Paciente: {nombre}
